@@ -27,6 +27,7 @@ const getAccount = catchAsync(async (req, res, next) => {
 
 // Create account (gán userId từ JWT)
 const createAccount = catchAsync(async (req, res, next) => {
+  console.log(req.body)
   // Validate dữ liệu đầu vào bổ sung
   if (
     typeof req.body.accountName !== "string" ||
@@ -40,15 +41,15 @@ const createAccount = catchAsync(async (req, res, next) => {
       )
     );
   }
-  if (!allowedTypes.includes(req.body.accountType)) {
-    return next(new AppError("accountType is invalid", 400));
-  }
+  // if (!allowedTypes.includes(req.body.accountType)) {
+  //   return next(new AppError("accountType is invalid", 400));
+  // }
   if (req.body.accountBalance !== undefined && req.body.accountBalance < 0) {
     return next(new AppError("accountBalance must be >= 0", 400));
   }
-  if (req.body.currency && !allowedCurrencies.includes(req.body.currency)) {
-    return next(new AppError("currency is invalid", 400));
-  }
+  // if (req.body.currency && !allowedCurrencies.includes(req.body.currency)) {
+  //   return next(new AppError("currency is invalid", 400));
+  // }
   const newAccount = await accountModels.Account.create({
     ...req.body,
     userId: req.user.userId,

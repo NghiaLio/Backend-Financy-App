@@ -29,6 +29,8 @@ const accountSchema = new mongoose.Schema({
     type: String,
     default: account_currency.VND,
   },
+  color:String,
+  description:String,
   userId: {
     type: String,
     required: true,
