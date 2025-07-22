@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { AppError } = require("../utils/appError");
 
 const account_type = {
   Cash: "Cash",
@@ -29,8 +30,8 @@ const accountSchema = new mongoose.Schema({
     type: String,
     default: account_currency.VND,
   },
-  color:String,
-  description:String,
+  color: String,
+  description: String,
   userId: {
     type: String,
     required: true,
@@ -54,11 +55,31 @@ const accountSchema = new mongoose.Schema({
   }, //thong tin lien ket sau nay
 });
 
-accountSchema.pre(/^find/, function (next) {
-  // this points to the current query
-  this.find({ active: { $ne: false } });
+// Prevent update and delete on inactive accounts
+function blockInactive(next) {
+  // 'this' is the query
+  const filter = this.getFilter();
+  // Nếu filter chỉ định active: false, hoặc không chỉ định active, thì cần kiểm tra trong DB
+  if (filter.active === false) {
+    // Sử dụng AppError với statusCode 403
+    return next(new AppError("Cannot modify or delete inactive account.", 403));
+  }
   next();
-});
+}
+
+accountSchema.pre(
+  [
+    "updateOne",
+    "updateMany",
+    "findOneAndUpdate",
+    "findByIdAndUpdate",
+    "deleteOne",
+    "deleteMany",
+    "findOneAndDelete",
+    "findByIdAndDelete",
+  ],
+  blockInactive
+);
 
 const Account = mongoose.model("account", accountSchema);
 

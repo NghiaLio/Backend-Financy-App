@@ -59,26 +59,6 @@ const createAccount = catchAsync(async (req, res, next) => {
 
 // Update account by ID (chỉ update account của user)
 const updateAccount = catchAsync(async (req, res, next) => {
-  // Validate dữ liệu đầu vào bổ sung
-  if (
-    req.body.accountName &&
-    (typeof req.body.accountName !== "string" ||
-      !req.body.accountName.trim() ||
-      req.body.accountName.length > 100)
-  ) {
-    return next(
-      new AppError("accountName must be non-empty and <= 100 characters", 400)
-    );
-  }
-  if (req.body.accountType && !allowedTypes.includes(req.body.accountType)) {
-    return next(new AppError("accountType is invalid", 400));
-  }
-  if (req.body.accountBalance !== undefined && req.body.accountBalance < 0) {
-    return next(new AppError("accountBalance must be >= 0", 400));
-  }
-  if (req.body.currency && !allowedCurrencies.includes(req.body.currency)) {
-    return next(new AppError("currency is invalid", 400));
-  }
   const updatedAccount = await accountModels.Account.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.userId },
     req.body,

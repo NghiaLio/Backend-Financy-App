@@ -1,4 +1,5 @@
 const AppError = require("./appError");
+const { account_type } = require("../models/accountModels");
 
 module.exports = (req, res, next) => {
   const {
@@ -10,6 +11,7 @@ module.exports = (req, res, next) => {
     bankMeta,
   } = req.body;
 
+  console.log(req.body)
   // accountName: required, string
   if (typeof accountName !== "string" || !accountName.trim()) {
     return next(
@@ -45,8 +47,11 @@ module.exports = (req, res, next) => {
   }
 
   // Nếu accountType là 'Ngân hàng' hoặc 'Banking', chỉ cho nhập tên + số dư
-  if (accountType === "Ngân hàng" || accountType === "Banking") {
-    // Các trường khác ngoài accountName, accountBalance, linked, bankMeta không được nhập
+  if (
+    accountType === account_type.Other ||
+    accountType === account_type.Banking
+  ) {
+    // Các trường khác ngoài accountName, accountType, accountBalance, linked, bankMeta không được nhập
     const allowedFields = [
       "accountName",
       "accountType",
@@ -58,7 +63,7 @@ module.exports = (req, res, next) => {
       if (!allowedFields.includes(key)) {
         return next(
           new AppError(
-            `Field '${key}' is not allowed when accountType is 'Ngân hàng'/'Banking'`,
+            `Field '${key}' is not allowed when accountType is '${account_type.Other}'/'${account_type.Banking}'`,
             400
           )
         );
